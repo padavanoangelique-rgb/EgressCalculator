@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wind-Borne Debris Region Checker | Permit Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0E1B2E; --panel:#152840; --panel-2:#1C3350; --hair:#2C4A6B;
+    --gold:#F4C430; --gold-bright:#FFDE59; --ink:#F3F6FA; --ink-dim:#AABFD6; --ink-faint:#6E88A6;
+    --green:#7FC17F; --red:#E0824F;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--void); color:var(--ink); font-family:'IBM Plex Sans', sans-serif; padding:28px 20px 60px;}
+  .wrap{max-width:760px; margin:0 auto;}
+  a.back{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-faint); display:inline-block; margin-bottom:18px;}
+  h1{font-family:'Lora', serif; font-size:26px; font-weight:700; margin-bottom:6px;}
+  .sub{color:var(--ink-dim); font-size:13.5px; margin-bottom:20px;}
+  .warn{background:rgba(224,130,79,0.12); border:1px solid rgba(224,130,79,0.4); border-left:3px solid var(--red); border-radius:6px; padding:14px 16px; font-size:12.5px; color:var(--ink-dim); line-height:1.55; margin-bottom:26px;}
+  .warn b{color:var(--ink);}
+  .card{background:var(--panel); border:1px solid var(--hair); border-radius:10px; padding:22px 24px; margin-bottom:22px;}
+  .card h2{font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); margin-bottom:16px;}
+  label{display:block; font-size:12.5px; color:var(--ink-dim); margin-bottom:6px;}
+  select{width:100%; background:var(--panel-2); border:1px solid var(--hair); border-radius:6px; color:var(--ink); font-family:'IBM Plex Mono', monospace; font-size:14px; padding:10px 12px;}
+  select:focus{outline:2px solid var(--gold); outline-offset:1px;}
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  .result{border-radius:10px; padding:24px; text-align:center; border:1.5px solid var(--hair);}
+  .result.in-region{border-color:var(--gold);}
+  .result.check{border-color:var(--ink-faint);}
+  .result .l{font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint);}
+  .result .v{font-family:'Lora', serif; font-weight:700; font-size:22px; color:var(--gold-bright); margin:8px 0;}
+  .result p{font-size:13px; color:var(--ink-dim); line-height:1.6;}
+  footer{margin-top:30px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./index.html">&larr; All Tools</a>
+  <h1>Wind-Borne Debris Region Checker</h1>
+  <div class="sub">A general reference for whether impact protection (impact-rated windows/doors or shutters) is likely required for a site.</div>
+
+  <div class="warn"><b>General reference, not a site-specific determination.</b> The actual Wind-Borne Debris Region boundary is defined by ASCE 7 wind speed contour maps, not county lines. The exact boundary for a specific address should be confirmed with the local building department or an ASCE 7 map lookup.</div>
+
+  <div class="card">
+    <h2>Site Location</h2>
+    <div class="field">
+      <label for="county">County</label>
+      <select id="county">
+        <option value="miamidade">Miami-Dade</option>
+        <option value="broward">Broward</option>
+        <option value="palmbeach" selected>Palm Beach</option>
+        <option value="martin">Martin</option>
+        <option value="other">Other Florida County</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="coastal">Distance From Coast</label>
+      <select id="coastal">
+        <option value="within1">Within 1 mile of the coast</option>
+        <option value="beyond1" selected>More than 1 mile from the coast</option>
+        <option value="unsure">Not sure</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="l">Wind-Borne Debris Region</div>
+    <div class="v" id="out-status">—</div>
+    <p id="out-detail">—</p>
+  </div>
+
+  <footer>PERMIT TOOLKIT &middot; VERIFY EXACT BOUNDARY WITH YOUR LOCAL BUILDING DEPARTMENT OR ASCE 7 MAP</footer>
+</div>
+
+<script>
+(function(){
+  function render(){
+    var county = document.getElementById('county').value;
+    var coastal = document.getElementById('coastal').value;
+    var box = document.getElementById('result');
+    var status, detail, cls;
+
+    if (county === 'miamidade' || county === 'broward'){
+      status = 'Likely Yes — HVHZ';
+      cls = 'in-region';
+      detail = 'Miami-Dade and Broward counties fall within the High-Velocity Hurricane Zone and are treated as entirely within the Wind-Borne Debris Region — impact protection is expected regardless of distance from the coast.';
+    } else if (coastal === 'within1'){
+      status = 'Likely Yes';
+      cls = 'in-region';
+      detail = 'Sites within 1 mile of the coast in this area are commonly within the Wind-Borne Debris Region. Confirm the exact wind speed contour for this address with the local building department.';
+    } else if (coastal === 'unsure'){
+      status = 'Check Local Map';
+      cls = 'check';
+      detail = 'Distance from the coast changes the answer here. Confirm the exact distance and check the ASCE 7 wind speed map or ask the local building department directly.';
+    } else {
+      status = 'Possibly Not';
+      cls = 'check';
+      detail = 'Sites more than 1 mile from the coast outside Miami-Dade/Broward may fall outside the Wind-Borne Debris Region, but this depends on the exact ultimate wind speed contour at this location — confirm with the local building department before assuming impact protection isn\'t required.';
+    }
+
+    box.className = 'result ' + cls;
+    document.getElementById('out-status').textContent = status;
+    document.getElementById('out-detail').textContent = detail;
+  }
+  document.getElementById('county').addEventListener('input', render);
+  document.getElementById('coastal').addEventListener('input', render);
+  render();
+})();
+</script>
+</body>
+</html>
