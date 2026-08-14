@@ -54,7 +54,7 @@
     </div>
     <div class="field">
       <label for="value">Direct Contract Value ($)</label>
-      <input type="number" id="value" value="4000" step="100">
+      <input type="number" id="value" value="6000" step="100">
     </div>
   </div>
 
@@ -73,7 +73,7 @@
   function render(){
     var trade = document.getElementById('trade').value;
     var value = parseFloat(document.getElementById('value').value) || 0;
-    var threshold = trade === 'hvac' ? 15000 : 2500;
+    var threshold = trade === 'hvac' ? 15000 : 5000;
     var required = value >= threshold;
     var box = document.getElementById('result');
     box.className = 'result' + (required ? ' required' : '');
